@@ -1,7 +1,4 @@
-'## Demo Presentation' 
-
----
-title: Drivers of Health Care Costs
+# title: Drivers of Health Care Costs
 subtitle: <small> An Exploratory Data Analysis using the Healthcare Challenge Data Set </small>
 author: Xue Li
 date: December 28, 2021
