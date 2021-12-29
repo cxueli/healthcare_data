@@ -1,0 +1,1005 @@
+---
+title: "Does the Degree of Supervisory Support for Employees in the Federal Government differ across Ethnicity and Gender?"
+subtitle: "An exploratory data analysis using the 2020 Federal Employee Viewpoint Survey"
+author: "Xue Li"
+date: "25 November 2021"
+output:
+  html_document:
+    prettydoc::html_pretty:
+      theme: architect
+    highlight: espresso
+    # css: styles.css
+    # latex_engine: xelatex
+    # mainfont: Calibri Light
+    toc: yes
+    toc_float: 
+      collapsed: false
+      smooth_scroll: false
+    number_sections: false
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = T)
+```
+
+```{css, echo = F}
+h1 { color: rgb(62, 6, 148); }
+h2 { color: rgb(0, 104, 139); } 
+h3 { color: rgb(51, 122, 183); }
+
+body {font-family:  -apple-system, BlinkMacSystemFont, 
+                    "Segoe UI", Roboto, Ubuntu;
+      font-size: 12pt; }
+
+code { color: rgb(205,79,57) }
+
+.tocify-extend-page {height: 0 !important; }
+```
+
+## Chapter 1: Background and Motivation
+
+> Over a half century after transformative civil rights laws such as Title VII of the Civil Rights Act of 1964 made discrimination illegal, America is still grappling with its history of racial injustice and the profound ongoing impact of systemic discrimination.
+>
+> Given that the primary responsibility for enforcing anti-discrimination laws lies with the individual workers, who must file complaints with their employer or a government agency, this could potentially deter employees from reporting unequal treatment based on color and gender due to fear of retaliation, hurdles in proving discrimination factually and etc. 
+
+In this capstone project, we seek to find out if implicit or perceived discrimination exist in workplaces using an established annual government survey data to explore if ethnicity and gender affect the degree of supervisory support for employees working in the federal government.
+
+In our exploratory analysis of how the degree of supervisory support differs across races and gender, we choose the following indicators which are highly valued by employees consistently across organizations:
+
+1. Supervisor's support for work-life balance - which plays a significant role in ensuring employees are able to both their work and family responsibilities.
+
+2. Supervisor's support for employee development - which is essential for improvements in productivity and worker's engagement at work
+
+For our data science project, we activated the following packages, using both the `Tidyverse` and `Base R` approach.
+
+```{r}
+pacman::p_load(dplyr, tidyverse, lubridate,
+               modelr, broom,
+               rvest,
+               MASS, Hmisc, car, psych,
+               ggthemes, scales, ggfortify,
+               jtools, huxtable, interactions,
+               DT, ggstance,
+               knitr, kableExtra,
+               effects, table1)
+```
+
+
+  
+## Chapter 2: Importing Dataset
+
+The dataset for this project originates from the Office of Personnel Management's Federal Employee Viewpoint Survey. It includes 120 perception questions with responses range from 1 = Strongly Disagree to 5 = Strongly Agree. Out of 1,410,610 employees, a total of 624,800 employees completed this survey which accounts for a response rate of 44.3%.
+```{r, include = FALSE}
+setwd("C:/Users/Xue Li/Desktop/dasr/Capstone Project")
+```
+
+```{r, results='hide', message=FALSE}
+data <- read_csv("FEVS_2020_PRDF.csv")
+```
+
+During the survey rollout, federal employees were asked to rate their interactions and interpersonal relationship with their supervisors and perception on how much support they receive from their supervisors. Two out of the seven questions in this section (`Q19` & `Q21`) will serve as our outcome variables.
+
+Q19. My supervisor supports my need to balance work and other life issues.  
+Q21. Supervisors in my work unit support employee development.
+
+ * 5	- Strongly Agree
+ * 4	- Agree
+ * 3	- Neither Agree nor Disagree
+ * 2	- Disagree
+ * 1	- Strongly Disagree
+
+Also, the dataset contains demographic response (8 items). Respondents were asked by the following questions:
+
+>**1. Please select the racial category or categories with which you most closely identify.**  
+>     A.	Black or African American  
+>     B.	White  
+>     C.	Asian  
+>     D.  Other Groups Collapsed for Privacy  
+>
+>**2. Are you of Hispanic, Latino, or Spanish origin?**  
+>     A.  Yes  
+>     B.  No  
+>
+>**3. Are you an individual with a disability?**  
+>     A.  Yes  
+>     B.  No  
+>
+>**4. What is your age group?**  
+>     A.  Under 40  
+>     B.  40 or Older  
+>
+>**5. What is your supervisory status?**  
+>     A.	Non-Supervisor/Team Leader  
+>     B.	Supervisor/Manager/Executive  
+>
+>**6. How long have you been with the Federal Government (excluding military service)?**  
+>     A.	Ten years or fewer  
+>     B.	Eleven to 20 years  
+>     C.	More than 20 years  
+>
+>**7. Are you Male or Female?**  
+>     A.  Male  
+>     B.  Female  
+>
+>**8. What is your US military service status?**  
+>     A.	Military Service  
+>     B.	No Prior Military Service  
+
+
+Out of the 8 questions, `DRNO` (categorical) will serve as our key predictor variable; whereas the other five (excluding military and supervisory status) will be used as control variables. The binary variable `gender` is used as our moderator.  
+
+
+  
+## Chapter 3: Tidy & Transform of Dataset
+  
+### 3A. Preparation of Predictor Variables
+
+We start with checking the values of Cronbach's Alpha for the selected groups of questions that we wish to create new predictor variables from.
+
+1. Employee's ratings of their general work environment
+2. Employee's ratings of their work satisfaction
+
+Given that the values of alpha exceed the threshold of 0.8 for the above groups, we subsequently created two variables (`work_experience` and `work_satisfaction`) that contain the mean value of the items for each variable. 
+
+Also, we recoded the `gender` variable - 0 being Female, 1 being Male. White American is set as the reference group for the discussion of results.
+  
+### 3B. Preparation of Outcome Variables
+
+For the purpose of constructing the logistic regression models, we also created a binary outcome variable for each survey question of interest (`Q19` & `Q21`), where higher scores above 3 point towards employee's agreement with the statement that they felt supported by the supervisors for work-life balance and employee development, while scores 3 and below indicate otherwise.
+
+```{r include=FALSE}
+data <- data %>%
+  mutate_at(vars(Q19, Q20, Q21, Q26, Q27, Q28, Q29, Q30, Q31, Q32), ~replace_na(., "X")) %>% 
+  mutate_at(vars(Q5, Q7, Q8, Q19, Q20, Q21, Q26, Q27, Q28, Q29, Q30, Q31, Q32), as.numeric) %>% 
+  drop_na(Q19, Q20, Q21, DSEX, DRNO, DFEDTEN, DHISP, DDIS, DAGEGRP)
+```
+
+```{r results='hide', warning=FALSE, message=FALSE}
+data_cleaned <- data %>%
+  mutate(work_satisfaction = rowMeans(data %>% 
+                                      dplyr::select(Q33, Q34, Q35, Q36, Q36, Q37, Q38), na.rm = TRUE),
+         work_experience = rowMeans(data %>% 
+                                    dplyr::select(Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8), na.rm = TRUE),
+         supervisor_support = rowMeans(data %>% 
+                                       dplyr::select(Q19, Q20, Q21, Q22, Q23, Q24, Q25), na.rm = TRUE),
+         leadership = rowMeans(data %>% 
+                               dplyr::select(Q26, Q27, Q28, Q29, Q30, Q31, Q32), na.rm = TRUE),
+         gender = ifelse(DSEX == "A", 1 , 0),
+         ancestry = ifelse(DHISP == "A", 1, 0),
+         disability = ifelse(DDIS == "A", 1, 0),
+         above40 = ifelse(DAGEGRP == "B", 1, 0),
+         Q19_sqrt = sqrt(max(Q19 + 1) - Q19),
+         Q19_log = log10(max(Q19 + 1) - Q19),
+         Q19_inverse = 1/(max(Q19 + 1) - Q19),
+         Q19_binary = ifelse(Q19 > 3, 1, 0),
+         Q21_binary = ifelse(Q21 > 3, 1, 0),
+         )
+
+data_cleaned$DRNO <- factor(data_cleaned$DRNO, 
+         levels=c("A", "B", "C", "D"),
+         labels=c("Black or African American",
+                  "White", 
+                  "Asian",
+                  "Others"))
+
+data_cleaned$DRNO <- relevel(as.factor(data_cleaned$DRNO), "White")
+
+```
+
+
+  
+## Chapter 4: Summary Statistics  
+
+```{r echo=FALSE, fig.align = "center"}
+data_cleaned$DFEDTEN <- factor(data_cleaned$DFEDTEN, 
+         levels=c("A", "B", "C"),
+         labels=c("10 or fewer",
+                  "Between 11 and 20", 
+                  "More than 20"))
+
+data_cleaned$gender_f <- factor(data_cleaned$gender, 
+         levels=c(0 , 1),
+         labels=c("Male", 
+                  "Female"))
+
+data_cleaned$ancestry_f <- factor(data_cleaned$ancestry, 
+         levels=c(0 , 1),
+         labels=c("No", 
+                  "Yes"))
+
+data_cleaned$disability_f <- factor(data_cleaned$disability, 
+         levels=c(0 , 1),
+         labels=c("No", 
+                  "Yes"))
+
+data_cleaned$above40_f <- factor(data_cleaned$above40, 
+         levels=c(0 , 1),
+         labels=c("No", 
+                  "Yes"))
+
+table1::label(data_cleaned$work_satisfaction) <- "Work Satisfaction"
+table1::label(data_cleaned$work_experience) <- "Work Experience"
+table1::label(data_cleaned$Q19_binary) <- "Supervisor Support for Work-Life Balance (Binary)"
+table1::label(data_cleaned$Q21_binary) <- "Supervisor Support for Employee Development (Binary)"
+table1::label(data_cleaned$leadership) <- "Leadership"
+table1::label(data_cleaned$gender_f) <- "Gender"
+table1::label(data_cleaned$ancestry_f) <- "Ancestry (Hispanic, Latino, Spanish) (Binary)"
+table1::label(data_cleaned$disability_f) <- "Disability (Binary)"
+table1::label(data_cleaned$above40_f) <- "Above 40 Years Old (Binary)"
+table1::label(data_cleaned$DRNO) <- "Racial Categories"
+table1::label(data_cleaned$DFEDTEN) <- "Federal Tenure"
+
+units(data_cleaned$DFEDTEN) <- "Years"
+
+library(knitr)
+library(kableExtra)
+
+knitr::knit_print(table1::table1(~Q19_binary + Q21_binary + DFEDTEN + gender_f + ancestry_f + disability_f + above40_f + work_satisfaction + work_experience | DRNO, data = data_cleaned, overall = "Total",  topclass="Rtable1-zebra Rtable1-shade"))
+```
+
+&nbsp;  
+In addition, the outcome variables (`Q19` & `Q21`) are plotted in histograms to visualize the distributions within each ethnicity.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+data_cleaned %>%
+  ggplot(aes(x = Q19)) +
+  geom_histogram(fill="blue", alpha=0.5, position="identity") +
+  labs(title = "Q19: My supervisor supports my need to balance work and other life issues.",
+       x = "Q19 Response Ratings",
+       y = "Count") +
+  scale_y_continuous(labels = comma) +
+  facet_wrap(~ DRNO, scales = "free")
+```
+&nbsp;  
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+data_cleaned %>%
+  ggplot(aes(x = Q21)) +
+  geom_histogram(fill="blue", alpha=0.5, position="identity") +
+  labs(title = "Q21: Supervisors in my work unit support employee development.",
+       x = "Q21 Response Ratings",
+       y = "Count") +
+  scale_y_continuous(labels = comma) +
+  facet_wrap(~ DRNO, scales = "free")
+```
+
+(Note: The extreme left-skewness of the outcome variables render multiple linear regression model unsuitable, even after attempts to transform the outcome variables as the condition of skewness is not satisfied. Hence, this leads us to model the data using logistic and parameterized ordinal logistic regression.)
+
+
+  
+## Chapter 5: Logistic Regression Model
+
+For the preparation of the model, we created and ran a correlation matrix, to see how our variables of interest (within the model) are related.
+
+```{r}
+data_cleaned %>% 
+  dplyr::select(gender, ancestry, disability, above40, work_experience, work_satisfaction, Q19, Q21) %>% 
+  as.matrix(.) %>% 
+  Hmisc::rcorr(.) %>% 
+  broom::tidy(.) %>%
+  rename(`Variable 1` = column1,
+         `Variable 2` = column2,
+         Correlation = estimate) %>% 
+  mutate(Abs_correlation = abs(Correlation)
+         ) %>% 
+  DT::datatable(options = list(scrollX = T),
+                ) %>% 
+  formatRound(columns = c("Correlation", "p.value", "Abs_correlation"), 
+              digits = 3)
+```
+
+```{r include = FALSE}
+# remove variables that are not needed for regression
+final_cleaned_data <- dplyr::select(data_cleaned, -c(2:20, 24:122, 131:133, 143:145))
+glimpse(final_cleaned_data)
+
+final_cleaned_data <- dplyr::select(final_cleaned_data, -c(6:8, 11:13)) %>% 
+  drop_na()
+
+final_cleaned_data <- final_cleaned_data %>% 
+  mutate(gender = as.factor(gender))
+glimpse(final_cleaned_data)
+
+glimpse(final_cleaned_data)
+```
+
+  
+### 5A. Model Specification
+
+For this project, 2 different regression models are explored. The first part of this project focuses on the logistic regression model which we regressed the demographics and control variables onto the binary outcomes of the likelihood of receiving supervisor's support on:  
+*(1) work-life balance (`Q19_binary`) and 
+*(2) employee development (`Q21_binary`).
+
+The second part of this project takes into account the ordinal ratings of the response variables. Hence, we use the parameterized ordinal logistic regression which regresses the same predictors onto the ordinal outcomes of receiving supervisor's support on:
+*(1) work-life balance (`Q19`) and 
+*(2) employee development (`Q21`).
+
+For each model, we will first show the model equation, followed by the regression output.
+
+  
+#### Model 1 - Main Logistic Regression Model Effects (Q19)
+
+$$
+\begin{aligned}
+\operatorname{Q19\_binary} &\sim Bernoulli\left(\operatorname{prob}_{\operatorname{Q19\_binary} = \operatorname{1}}= \hat{P}\right) \\
+ \log\left[ \frac { \hat{P} }{ 1 - \hat{P} } \right] 
+ &= \alpha + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience}) + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})  + \epsilon
+\end{aligned}
+$$
+```{r}
+model4_logit <- final_cleaned_data %>% 
+  glm(Q19_binary ~  DRNO + gender + ancestry + disability + above40 + DFEDTEN + work_experience 
+      + work_satisfaction,
+      ., family = binomial(link = "logit"))
+
+summary(model4_logit)
+```
+
+  
+#### Model 2 - Main Logistic Regression Model Effects (Q21)
+
+$$
+\begin{aligned}
+\operatorname{Q21\_binary} &\sim Bernoulli\left(\operatorname{prob}_{\operatorname{Q21\_binary} = \operatorname{1}}= \hat{P}\right) \\
+ \log\left[ \frac { \hat{P} }{ 1 - \hat{P} } \right] 
+ &= \alpha + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience})\  + \\
+&\quad \beta_{11}(\operatorname{work\_satisfaction})  + \epsilon
+\end{aligned}
+$$
+
+```{r}
+model6_logit <- final_cleaned_data %>% 
+  glm(Q21_binary ~  DRNO + gender + ancestry + disability + above40 + DFEDTEN + work_experience 
+      + work_satisfaction,
+      ., family = binomial(link = "logit"))
+
+summary(model6_logit)
+```
+
+  
+&nbsp; 
+
+In addition to exploring the differences in supervisory support for work-life balance and employee development, literature has shown the [persistence of workplace gender segregation in the United States](https://doi.org/10.1111/soc4.12083). Hence, we include a set of interaction terms for each ethnicity group with the binary gender variable in attempt to draw more insights from our data.  
+
+
+  
+#### Model 3 - Main Logistic Regression Model with Gender Interaction Effects (Q19)
+
+$$
+\begin{aligned}
+\operatorname{Q19\_binary} &\sim Bernoulli\left(\operatorname{prob}_{\operatorname{Q19\_binary} = \operatorname{1}}= \hat{P}\right) \\
+ \log\left[ \frac { \hat{P} }{ 1 - \hat{P} } \right] 
+ &= \alpha + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}_{\operatorname{1}}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience})\ +  \\
+&\quad \beta_{11}(\operatorname{work\_satisfaction})\ +  \beta_{12}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}} \times \operatorname{gender}_{\operatorname{1}})\ +  \\
+&\quad \beta_{13}(\operatorname{DRNO}_{\operatorname{Asian}} \times \operatorname{gender}_{\operatorname{1}}) + \beta_{14}(\operatorname{DRNO}_{\operatorname{Others}} \times \operatorname{gender}_{\operatorname{1}})  + \epsilon
+\end{aligned}
+$$
+
+```{r}
+model10_logit <- final_cleaned_data %>% 
+  glm(Q19_binary ~  DRNO + gender + DRNO*gender + ancestry + disability + above40 + DFEDTEN 
+      + work_experience + work_satisfaction,
+      ., family = binomial(link = "logit"))
+
+summary(model10_logit)
+```
+
+  
+#### Model 4 - Main Logistic Regression Model with Gender Interaction Effects (Q21)
+
+$$
+\begin{aligned}
+\operatorname{Q21\_binary} &\sim Bernoulli\left(\operatorname{prob}_{\operatorname{Q21\_binary} = \operatorname{1}}= \hat{P}\right) \\
+ \log\left[ \frac { \hat{P} }{ 1 - \hat{P} } \right] 
+ &= \alpha + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}_{\operatorname{1}}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience}) + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})\ +  \beta_{12}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}} \times \operatorname{gender}_{\operatorname{1}})\ + \\
+&\quad \beta_{13}(\operatorname{DRNO}_{\operatorname{Asian}} \times \operatorname{gender}_{\operatorname{1}}) + \beta_{14}(\operatorname{DRNO}_{\operatorname{Others}} \times \operatorname{gender}_{\operatorname{1}})  + \epsilon
+\end{aligned}
+$$
+```{r}
+model12_logit <- final_cleaned_data %>% 
+  glm(Q21_binary ~  DRNO + gender + DRNO*gender + ancestry + disability + above40 + DFEDTEN 
+      + work_experience + work_satisfaction,
+      ., family = binomial(link = "logit"))
+
+summary(model12_logit)
+```
+
+  
+### 5B. Logistic Regression Results
+  
+In this section, we will interpret the results of our 4 models specified in Chapter 5A showing the relationship between (1) ethnicity and (2) interaction effects of gender, and the binary outcomes of the likelihood of receiving supervisor's support on:  
+
+1. work-life balance (`Q19_binary`) and  
+2. employee development (`Q21_binary`).
+
+```{r echo=FALSE, fig.align = "center", fig.width = 10, fig.height= 10, warning = FALSE}
+export_summs(model4_logit, model10_logit, model6_logit, model12_logit,
+             error_format = "([{conf.low}, {conf.high}], 
+             p = {p.value})",
+             align = "right",
+             model.names = c("Model 1 \nMain Effects - \nWork-Life Balance", "Model 3 \nWith Interactions - \nWork-Life Balance", "Model 2 \nMain Effects -   \nEmployee's Development",  "Model 4 \nWith Interactions - \nEmployee's Development"),
+             digits = 3,
+             exp = T,
+             coefs = c("Intercept" = "(Intercept)",
+                       "Black or African American" = "DRNOBlack or African American",
+                       "Asian" = "DRNOAsian",
+                       "Others" = "DRNOOthers",
+                       "Gender (0 = Female, 1 = Male)" = "gender1",
+                       "Ancestry" = "ancestry",
+                       "Disability" = "disability",
+                       "Age above 40 years old (0 = No, 1 = Yes)" = "above40",
+                       "Federal Tenure between 11 and 20 years" = "DFEDTENBetween 11 and 20",
+                       "Federal Tenure more than 20 years" = "DFEDTENMore than 20",
+                       "Work Experience Rating" = "work_experience",
+                       "Work Satisfaction Rating" = "work_satisfaction",
+                       "Black or African American X Gender" = "DRNOBlack or African American:gender1",
+                       "Asian X Gender" = "DRNOAsian:gender1",
+                       "Others X Gender" = "DRNOOthers:gender1"))
+```
+
+The above regression table shows the exponentiated coefficients for all variables, which we will give our interpretation based on the odds scale, instead of on the probability scale.
+
+Based on the logistic regression `Model 1` and `Model 2`, we observe that non-White employees (`Black/African Americans`, `Asian` and `Others`) less likely than White employees to agree with the statement that their supervisors support their need for work-life balance and employee development.
+
+In particular, as seen from `Model 1`, Black or African American federal employees see about 27% decrease in odds as compared to their White colleagues in receiving support from the supervisors to balance their work and other life priorities, holding other variables constant. Employees who are Asian and `Others` racial categories see a greater decrease in odds, by 32% and 33% respectively, relative to White employees.
+
+As for `Model 2`, the odds for Black or African American and Asian federal employees in receiving support from the supervisors for their development are approximately 26% lower than their White colleagues, holding other variables constant. The odds for employees of `Others` racial category decreases more significantly by 32% as compared to their White colleagues.
+
+When considering the gender interaction effects in `Model 3`, the odds for White male employees receiving support from their supervisors to balance work and other life priorities are 8% higher than White females employees. On the contrary, within the groups of Asian and Black/African American employees, the odds for male employees gaining support from supervisors for work-life balance decreases slightly by 6-7% relative to their female counterparts. Surprisingly for employees of `Others` racial category, we observe that the odds for male employees gaining support for work-life balance is 28% higher than their female colleagues, which reflects the widest gap in differentiation for the minority as compared to the other 3 racial groups.
+
+Lastly for Model 4, the odds for White male employees receiving support from their supervisors for employee's development are 8% higher than White females employees. However, within the groups of Asian and Black/African American employees, the odds for male employees gaining support from supervisors development opportunities do not differ significantly from females. For employees of `Others` racial category, the odds for male employees gaining support for development opportunities is 26% higher than their female colleagues, which again reflects the widest gap in differentiation for the minority as compared to the other 3 racial groups.
+
+For ease of comparing the magnitudes of the effects of other independent variables on the outcome variables, we also plotted the raw regression coefficients in the following graphs. Estimates above 0 implies an increase in probability/odds (i.e. positive relationship) in receiving support for work-life balance or employee's development due to the variable, while those below 0 indicate otherwise.  
+
+```{r echo=FALSE, fig.align = "center", fig.width = 10, fig.height= 12, warning = FALSE, include=TRUE, cache = FALSE}
+coefficients_plot_main_logistic_Q19 <- plot_summs(model4_logit, model10_logit,
+           scale = T,
+           ci_level = 0.95,
+           model.names = c("Main Model - Work-Life Balance (Q19)",
+                           "With Interaction Effects - Work-Life Balance (Q19)"),
+           legend.title = "Logistic Regression - \n Main Effects vs with Interactions for\n Work-Life Balance (Q19_binary)",
+           plot.distributions = T) +
+           theme(legend.position = "top")
+
+coefficients_plot_main_logistic_Q19
+
+
+coefficients_plot_main_logistic_Q21 <- plot_summs(model6_logit, model12_logit,
+           scale = T,
+           ci_level = 0.95,
+           model.names = c("Main Model - Employee's Development (Q21)",
+           "With Interaction Effects - Employee's Development (Q21)"),
+           legend.title = "Logistic Regression - \n Main Effects vs with Interactions for\n Employee's Development (Q21_binary)",
+           plot.distributions = T) +
+           theme(legend.position = "top")
+
+coefficients_plot_main_logistic_Q21
+```
+
+In terms of the goodness of fit, the results of the analysis suggest that adding the interaction terms has negligible effect in enhancing the explanatory power of the model as the pseudo R-squared of `Model 1` and `Model 2` were similar to that of `Models 3` and `Model 4` respectively.
+
+For the purpose of investigating how the degree of supervisory support for employees in the federal government differ across **ethnicity** and **gender**, we will keep the interaction variables in our models.
+
+To see the patterns of interaction, we will visualize the significant interaction effects on the next chapter.
+
+
+  
+## Chapter 6: Visualization of Logistic Regression Models
+
+To visualize the logistic regression analysis performed above, we plotted the predicted probabilities across the ethnicity groups. Within each ethnicity group, the predicted probabilities are further differentiated by gender in the later section.
+
+### 6A. Ethnicity categorical predictors only
+
+```{r echo=FALSE, fig.align = "center", fig.width = 12, fig.height= 6}
+effect_plot(model4_logit, 
+            pred = DRNO, 
+            interval = TRUE, 
+            outcome.scale = "response",
+            centered = "all",
+            x.label = "Racial Categories",
+            y.label = "Predicted Probability",
+            main.title = "Model 1 - Predicted Probabilities of Supervisor's Support for Work-Life Balance across Racial Categories
+            \nThe predicted probability for Whites receiving support from supervisor to balance work and other life priorities is greater \nthan Black or African Americans, Asians and Other racial categories.")
+```
+
+```{r echo=FALSE, fig.align = "center", fig.width = 12, fig.height= 6}
+effect_plot(model6_logit, 
+            pred = DRNO, 
+            interval = TRUE, 
+            outcome.scale = "response",
+            centered = "all",
+            x.label = "Racial Categories",
+            y.label = "Predicted Probability",
+            main.title = "Model 2 - Predicted Probabilities of Supervisor's Support for Employee's Development across Racial Categories 
+            \nThe predicted probability for Whites receiving support from supervisor to pursue Employee's development is much greater than \nBlacks or African Americans and Asians, with Other Racial Categories having the lowest predicted probability.")
+```
+  
+Based on the above figures in sub-section 6A, it has shown consistently that the predicted probabilities of White employees to receive support from supervisor on both work-life balance and employee development are much higher than other racial groups. Differentiated treatment due to racial groups appears to exist in the federal workplaces, where employees in `Others` racial category tend to be at relatively greater disadvantage.
+
+
+### 6B. Ethnicity X Gender 
+
+In the second part of the logistic regression model, we will include the gender interaction effects to see how the relationship between ethnicity and supervisor support for work-life balance and employee's development may change.
+
+```{r echo=FALSE, fig.align = "center", fig.width = 12, fig.height= 6}
+cat_plot(model10_logit,
+         pred = DRNO,
+         modx = gender,
+         legend.main = "Gender",
+         modx.labels = c("Female",
+                         "Male"),
+         x.label = "Racial Categories",
+         y.label = "Predicted Probability",
+         main.title = "Model 3 - Interaction Effects between Racial Categories and Gender in Receiving Supervisor Support \nfor Work-Life Balance",
+         interval = T,
+         int.width = 0.95,
+         colors = c("tomato3",
+                    "deepskyblue3"),
+         outcome.scale = "response")
+```
+
+Based on the figure above, the predicted probability of White male employees in receiving support from supervisor to pursue work-life balance are higher than their White female colleagues. Similar conclusion can be drawn for employees in `Others` racial category with a wider disparity in predicted probabilities.
+
+Comparing across all racial groups, White male employees are most likely to receive support from their supervisors to balance work and other life priorities, and least likely so for females in `Others` racial category. 
+
+Gender effects are not significant within Black or African American and Asian employees.  
+
+
+
+```{r echo=FALSE, fig.align = "center", fig.width = 12, fig.height= 6}
+cat_plot(model12_logit,
+         pred = DRNO,
+         modx = gender,
+         legend.main = "Gender",
+         modx.labels = c("Female",
+                         "Male"),
+         x.label = "Racial Categories",
+         y.label = "Predicted Probability",
+         main.title = "Model 4 - Interaction Effects between Racial Categories and Gender in Receiving Supervisor Support \nfor Employee's Development",
+         interval = T,
+         int.width = 0.95,
+         colors = c("tomato3",
+                    "deepskyblue3"),
+         outcome.scale = "response")
+```
+
+We also observe similar relationship when the outcome variable is the supervisor's support for employee's development (`Q21_binary`). The exception lies in that male Black or African American employees have significantly higher predicted probability in receiving support for their development than their female colleagues.
+
+
+In summary, we can observe that White male employees have consistently higher predicted probabilities of receiving support from supervisors on work-life balance and employee development, relative to males in the other 3 racial groups. No gender difference is observed for Asians, who are relatively similar in their outcomes due to overlapping confidence intervals. Females of `Others` racial category have notably the lowest predicted probability amongst non-White employees.
+
+
+
+## Chapter 7: Parameterized Ordinal Logistic Regression Model (POLR)
+
+Given that the ratings of the response variables of interest are on a 5-point Likert scale, we decided to do an extension of the logistic regression model in Part 1 by modelling the relationship using the ordinal logistic regression. 
+
+The scale of the response variables of interest (`Q19` and `Q21`) ranges from:
+5	- Strongly Agree,
+4	- Agree,
+3	- Neither Agree nor Disagree,
+2	- Disagree,
+1	- Strongly Disagree  
+
+
+### 7A. Intuition for Parameterized Ordinal Logistic Regression (Proportional Odds)
+
+For ordinal logistic regression, the model assumes that none of independent variables has a disproportionate effect on any rating level of the outcome variable, which can be tested by the `Brant` package. Besides the proportional odds assumption, it also assumes the absence of multicollinearity where independent variables are not significantly correlated as shown by the Variance Inflation Factor (VIF). These assumptions will be addressed in Chapter 11 and the Appendix.
+
+For the purpose of this project, we will run our regression on a smaller random sample of the full dataset due to the high computational demand of running the full dataset.
+
+```{r}
+set.seed(110721)
+
+final_cleaned_data_sample <- final_cleaned_data %>% 
+  sample_frac(.20)
+```
+
+
+### 7B. Model Specification
+
+Similar to the logistic regression models in Chapter 5, For each model, we will first show the model equations for parameterized ordinal logistic regression, followed by the regression output of each model.
+
+`Q19` and `Q21` are the outcome variables for `Model 5` and `Model 6` respectively, while all other predictor variables are the same for both models.
+
+The model equations for `Model 5` and `Model 6` are as follow:
+
+$$
+\begin{aligned}
+\log\left[ \frac { P( \operatorname{1} \geq \operatorname{2} ) }{ 1 - P( \operatorname{1} \geq \operatorname{2} ) } \right] &= \alpha_{1} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience}) + \\
+&\quad \beta_{11}(\operatorname{work\_satisfaction})  + \epsilon \\
+\log\left[ \frac { P( \operatorname{2} \geq \operatorname{3} ) }{ 1 - P( \operatorname{2} \geq \operatorname{3} ) } \right] &= \alpha_{2} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience}) + \\
+&\quad \beta_{11}(\operatorname{work\_satisfaction})  + \epsilon \\
+\log\left[ \frac { P( \operatorname{3} \geq \operatorname{4} ) }{ 1 - P( \operatorname{3} \geq \operatorname{4} ) } \right] &= \alpha_{3} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience}) + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})  + \epsilon \\
+\log\left[ \frac { P( \operatorname{4} \geq \operatorname{5} ) }{ 1 - P( \operatorname{4} \geq \operatorname{5} ) } \right] &= \alpha_{4} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience}) + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})  + \epsilon
+\end{aligned}
+$$
+
+
+#### Model 5 - Parameterized Ordinal Logistic Regression Model - Main Effects only (Q19)
+
+```{r echo=FALSE}
+final_cleaned_data_sample$Q19_factor <- as.factor(final_cleaned_data_sample$Q19)
+
+polr_model13 <- polr(formula = Q19_factor ~ DRNO + gender + ancestry + disability + above40 + DFEDTEN
+                     + work_experience + work_satisfaction, 
+               data = final_cleaned_data_sample, 
+               Hess = T)
+
+summary(polr_model13)
+
+polr_results_table_1 <- coef(summary(polr_model13))
+
+p_values_1 <- pnorm(abs(polr_results_table_1[ , "t value"]),
+                  lower.tail = F) * 2
+
+coefficients_table_1 <- cbind(polr_results_table_1, "p value" = p_values_1)
+
+knitr::kable(coefficients_table_1, caption = "Model 5 - POLR Regression Coefficients") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T) %>% 
+  column_spec(c(1, 5), bold = T) %>%
+  row_spec(c(2, 4, 6, 8, 10, 12, 14), bold = T, color = "white", background = "#708090")
+```
+
+As seen from `Model 5` regression coefficients table, the output shows that for employees who are Black/African American, Asian and Other races, the log odds of increasing the scale rating for supervisor's support for work-life balance by 1 unit decreases by 0.26, 0.46 and 0.29 points as compared to their White colleagues respectively. Collectively among all respondents, males and females are equally likely to increase or decrease the scale rating for their supervisors.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Computing the Confidence Intervals of the regression coefficients ----
+confidence_intervals_1 <- confint(polr_model13)
+
+# Odds Ratios ----
+odds_ratio_1 <- exp(coef(polr_model13))
+
+# Odds Ratios + Confidence Intervals ----
+polr_model13_odds_ratio <- exp(cbind(odds_ratio = coef(polr_model13), confidence_intervals_1))
+
+knitr::kable(polr_model13_odds_ratio,
+             caption = "Model 5 - Odds Ratios with 95% CIs") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T)
+```
+
+Another interpretation of the regression results is shown in above table expressed in odds ratios. For employees who are Black/African American, Asian and of Other races, the odds of being in a higher level rating for supervisor's support for work-life balance by 1 unit decreases by 23%, 37% and 25% respectively relative to White employees, given that all other variables are held constant. This implies that the likelihood of increasing the rating of the supervisors' support for work-life balance by 1 unit is the lowest is amongst Asian employees. Overall, it seems that there is no gender differences in odds for rating the supervisor's support for work-life balance but this will be discussed further in models considering gender interaction effects.
+
+
+#### Model 6 - Parameterized Ordinal Logistic Regression Model - Main Effects only (Q21)
+
+```{r echo=FALSE}
+final_cleaned_data_sample$Q21_factor <- as.factor(final_cleaned_data_sample$Q21)
+
+polr_model15 <- polr(formula = Q21_factor ~ DRNO + gender + ancestry + disability + above40 + DFEDTEN
+                     + work_experience + work_satisfaction, 
+                     data = final_cleaned_data_sample, 
+                     Hess = T)
+
+summary(polr_model15)
+
+polr_results_table_3 <- coef(summary(polr_model15))
+
+p_values_3 <- pnorm(abs(polr_results_table_3[ , "t value"]),
+                    lower.tail = F) * 2
+
+coefficients_table_3 <- cbind(polr_results_table_3, "p value" = p_values_3)
+
+knitr::kable(coefficients_table_3, caption = "Model 6 - POLR Regression Coefficients") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T) %>% 
+  column_spec(c(1, 5), bold = T) %>%
+  row_spec(c(2, 4, 6, 8, 10, 12, 14), bold = T, color = "white", background = "#708090")
+```
+
+As seen from `Model 6` regression coefficients table, the output shows that for employees who identify themselves as `Black or African American`, `Asian` and `Others` racial categories, the log odds of giving a higher scale rating by 1 unit for supervisor's support for employee's development decreases by 0.21, 0.33 and 0.25 points as compared to their White colleagues respectively. The log odds are not statistically different between males and females federal employees.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Computing the Confidence Intervals of the regression coefficients ----
+confidence_intervals_3 <- confint(polr_model15)
+
+# Odds Ratios ----
+odds_ratio_3 <- exp(coef(polr_model15))
+
+# Odds Ratios + Confidence Intervals ----
+polr_model15_odds_ratio <- exp(cbind(odds_ratio = coef(polr_model15), confidence_intervals_3))
+
+knitr::kable(polr_model15_odds_ratio, caption = "Model 6 - Odds Ratios with 95% CIs") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T)
+```
+
+Another interpretation from the perspective of using odds ratio seen in `Model 6` is that for employees who are Black/African American, Asian and Other races, the odds of an increase in 1 unit in Likert scale rating for supervisor's support for employee's development decreases by 19%, 28% and 22% respectively relative to White employees. Asian employees are least likely to give a higher rating of supervisors' support in the area of employee development. Overall, it seems that there is no gender differences for rating the supervisor's support for work-life balance but this will be discussed further in models considering gender interaction effects.  
+
+&nbsp;  
+  
+To explore the gender interaction effects using the parameterized ordinal logistic regression model, we will add the interaction terms between each ethnicity group with gender in addition to the equations used in Chapter 7B.
+
+The model equations for `Model 7` and `Model 8` are as follow:
+
+$$
+\begin{aligned}
+\log\left[ \frac { P( \operatorname{1} \geq \operatorname{2} ) }{ 1 - P( \operatorname{1} \geq \operatorname{2} ) } \right] &= \alpha_{1} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience})\ + \\
+&\quad \beta_{11}(\operatorname{work\_satisfaction})\ +   \beta_{12}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}} \times \operatorname{gender})\ + \\
+&\quad \beta_{13}(\operatorname{DRNO}_{\operatorname{Asian}} \times \operatorname{gender}) + \beta_{14}(\operatorname{DRNO}_{\operatorname{Others}} \times \operatorname{gender})  + \epsilon \\
+\log\left[ \frac { P( \operatorname{2} \geq \operatorname{3} ) }{ 1 - P( \operatorname{2} \geq \operatorname{3} ) } \right] &= \alpha_{2} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience})\ + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})\ +   \beta_{12}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}} \times \operatorname{gender})\ + \\ 
+&\quad \beta_{13}(\operatorname{DRNO}_{\operatorname{Asian}} \times \operatorname{gender}) + \beta_{14}(\operatorname{DRNO}_{\operatorname{Others}} \times \operatorname{gender})  + \epsilon \\
+\log\left[ \frac { P( \operatorname{3} \geq \operatorname{4} ) }{ 1 - P( \operatorname{3} \geq \operatorname{4} ) } \right] &= \alpha_{3} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience})\ + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})\ +   \beta_{12}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}} \times \operatorname{gender})\ + \\
+&\quad \beta_{13}(\operatorname{DRNO}_{\operatorname{Asian}} \times \operatorname{gender}) + \beta_{14}(\operatorname{DRNO}_{\operatorname{Others}} \times \operatorname{gender})  + \epsilon \\
+\log\left[ \frac { P( \operatorname{4} \geq \operatorname{5} ) }{ 1 - P( \operatorname{4} \geq \operatorname{5} ) } \right] &= \alpha_{4} + \beta_{1}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}}) + \beta_{2}(\operatorname{DRNO}_{\operatorname{Asian}}) + \beta_{3}(\operatorname{DRNO}_{\operatorname{Others}})\ + \\
+&\quad \beta_{4}(\operatorname{gender}) + \beta_{5}(\operatorname{ancestry}) + \beta_{6}(\operatorname{disability}) + \beta_{7}(\operatorname{above40})\ + \\
+&\quad \beta_{8}(\operatorname{DFEDTEN}_{\operatorname{Between\ 11\ and\ 20}}) + \beta_{9}(\operatorname{DFEDTEN}_{\operatorname{More\ than\ 20}}) + \beta_{10}(\operatorname{work\_experience})\ + \\ 
+&\quad \beta_{11}(\operatorname{work\_satisfaction})\ +   \beta_{12}(\operatorname{DRNO}_{\operatorname{Black\ or\ African\ American}} \times \operatorname{gender})\ + \\
+&\quad \beta_{13}(\operatorname{DRNO}_{\operatorname{Asian}} \times \operatorname{gender}) + \beta_{14}(\operatorname{DRNO}_{\operatorname{Others}} \times \operatorname{gender})  + \epsilon
+\end{aligned}
+$$
+  
+#### Model 7 - Parameterized Ordinal Logistic Regression Model - Ethnicity x Gender (Q19)
+
+```{r echo=FALSE}
+final_cleaned_data_sample$Q19_factor <- as.factor(final_cleaned_data_sample$Q19)
+
+polr_model16 <- polr(formula = Q19_factor ~ DRNO + gender + DRNO*gender + ancestry + disability 
+                     + above40 + DFEDTEN + work_experience + work_satisfaction, 
+                     data = final_cleaned_data_sample, 
+                     Hess = T)
+
+summary(polr_model16)
+
+polr_results_table_4 <- coef(summary(polr_model16))
+
+p_values_4 <- pnorm(abs(polr_results_table_4[ , "t value"]),
+                    lower.tail = F) * 2
+
+coefficients_table_4 <- cbind(polr_results_table_4, "p value" = p_values_4)
+
+knitr::kable(coefficients_table_4, caption =  "Model 7 - POLR Regression Coefficients") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T) %>% 
+  column_spec(c(1, 5), bold = T) %>%
+  row_spec(c(2, 4, 6, 8, 10, 12, 14, 16, 18), bold = T, color = "white", background = "#708090")
+```
+As evidenced from `Model 7` , the log odds of male employees who belong to `Others` race category giving a higher scale rating by 1 unit for supervisor's support for work-life balance relative to females increase by 0.24 points. However, the log odds of White male employees decreases by 0.04 points as compared to White females. There are no significant gender differences in terms of log odds of giving a higher scale rating by 1 unit for Black/African Americans and Asians employees.  
+
+
+To evaluate whether the interactions are significant, we use the ANOVA function from the car package. The ANOVA result shows that the interaction between `DRNO` and `gender` is significant.
+```{r echo=FALSE, fig.align='center', warning=FALSE, message=FALSE}
+kable(Anova(polr_model16, type = 3), caption = "Model 7 - Analysis of Deviance Table 
+      (Type III tests)") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T)
+  
+```
+
+  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Computing the Confidence Intervals of the regression coefficients ----
+confidence_intervals_4 <- confint(polr_model16)
+
+# Odds Ratios ----
+odds_ratio_4 <- exp(coef(polr_model16))
+
+# Odds Ratios + Confidence Intervals ----
+polr_model16_odds_ratio <- exp(cbind(odds_ratio = coef(polr_model16), confidence_intervals_4))
+
+knitr::kable(polr_model16_odds_ratio, caption = "Model 7 - Odds Ratios with 95% CIs") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T)
+```
+From the perspective of odds ratios, the estimated odds for male employees who are in the `Others` racial category increasing their rating of their supervisor's support for work-life balance by 1 unit are 1.26 times the odds for female employees. For White male employees, the estimated odds of increasing their rating of their supervisor's support for work-life balance by 1 unit decreases very slightly by 4% relative to female employees. We do not observe significant differences in gender effects for employees who are Black/African Americans and Asians in their odds for increasing their rating of their supervisors by 1 Likert scale unit.  
+
+
+#### Model 8 - Parameterized Ordinal Logistic Regression Model - Ethnicity x Gender (Q21)
+
+```{r echo=FALSE}
+final_cleaned_data_sample$Q21_factor <- as.factor(final_cleaned_data_sample$Q21)
+
+polr_model18 <- polr(formula = Q21_factor ~ DRNO + gender + DRNO*gender + ancestry + disability 
+                     + above40 + DFEDTEN + work_experience + work_satisfaction, 
+                     data = final_cleaned_data_sample, 
+                     Hess = T)
+
+summary(polr_model18)
+
+polr_results_table_6 <- coef(summary(polr_model18))
+
+p_values_6 <- pnorm(abs(polr_results_table_6[ , "t value"]),
+                    lower.tail = F) * 2
+
+coefficients_table_6 <- cbind(polr_results_table_6, "p value" = p_values_4)
+
+knitr::kable(coefficients_table_6, caption = "Model 8 - POLR Regression Coefficients") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T) %>% 
+  column_spec(c(1, 5), bold = T) %>%
+  row_spec(c(2, 4, 6, 8, 10, 12, 14, 16, 18), bold = T, color = "white", background = "#708090")
+```
+As evidenced from `Model 8` , the log odds of male employees who belong to `Others` race category giving a higher scale rating by 1 unit for supervisor's support for employee's development relative to females increase by 0.22 points. On the contrary, the log odds of White male employees giving a higher scale rating by 1 unit for supervisor's support for employee's development relative to females decreases very slightly by 0.03 points. There are no significant gender differences in terms of log odds of giving a higher scale rating by 1 unit for Black/African Americans and Asians.  
+
+
+Similar to what we have done for `Model 7`, we use the ANOVA function from the car package. The ANOVA result shows that the interaction between `DRNO` and `gender` is significant.
+
+```{r echo=FALSE, fig.align='center', warning=FALSE, message=FALSE}
+kable(Anova(polr_model18, type = 3), caption = "Model 8 - Analysis of Deviance Table 
+      (Type III tests)") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T)
+```
+  
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Computing the Confidence Intervals of the regression coefficients ----
+confidence_intervals_6 <- confint(polr_model18)
+
+# Odds Ratios ----
+odds_ratio_6 <- exp(coef(polr_model18))
+
+# Odds Ratios + Confidence Intervals ----
+polr_model18_odds_ratio <- exp(cbind(odds_ratio = coef(polr_model18), confidence_intervals_6))
+
+knitr::kable(polr_model18_odds_ratio, caption = "Model 8 - Odds Ratios with 95% CIs") %>% 
+  kable_styling("striped", "condensed", "hover", position = "center", full_width = T, fixed_thead = T)
+```
+From the above odds ratio table for `Model 8`, the estimated odds for male employees who identify themselves as Black or African American and `Others` racial categories increasing their rating of their supervisor's support on employee's development by 1 unit are about 1.11 and 1.25 times the odds for female employees respectively. There is no significant difference between genders for White and Asian employees in their odds for increasing their rating of their supervisors by 1 Likert scale unit.  
+
+
+## Chapter 8: Visualization of Parameterized Ordinal Logistic Regression
+
+In Chapter 8, we subsequently calculate the predicted probabilities and odds ratios for various combination of focal predictors - ethnicity groups and gender, while holding other predictors at their fixed values. 
+
+We will first plot the predicted probabilities of `Model 5` and `Model 6` in sub-section 8A.
+
+In sub-section 8B, we plot the predicted odds ratio across different ethnicity groups for males and females separately. The effect displays are created with “latent” option activated. In these plots, the y axis is on the logit scale, which we interpret to be a latent, or hidden, scale from which the ordered categories are derived.  
+
+
+### 8A. Ethnicity categorical predictors only
+
+```{r echo=FALSE, fig.align = "center", fig.width = 10, fig.height= 10, warning = FALSE}
+plot(effects::Effect(focal.predictors = "DRNO", polr_model13),
+     main = "Model 5 - Main Effects of Race on Supervisor's Support for Work-Life Balance \n(Ordinal Ratings)",
+     ylab = "Predicted Probability for each Response Rating - Q19",
+     xlab = "Racial Categories",
+     grid = TRUE)
+```
+  
+```{r echo=FALSE, fig.align = "center", fig.width = 10, fig.height= 10, warning = FALSE}
+plot(effects::Effect(focal.predictors = "DRNO", polr_model15),
+     main = "Model 6 - Main Effects of Race on Supervisor's Support for Employee Development \n(Ordinal Ratings)",
+     ylab = "Predicted Probability for each Response Rating - Q21",
+     xlab = "Racial Categories",
+     grid = TRUE)
+```
+
+Collectively based on the effect displays of `Model 5` & `Model 6`, it appears that generally federal employees are highly likely to rate their supervisor's support for work-life balance and development on the scale of 4 and higher. 
+
+White employees are very likely to give the highest rating of 5 on their supervisors' support for work-life balance relative to other racial groups, while Black/African Americans and Asian employees are more likely to give a slightly lower rating of 4. As for supervisor's support on employee development, all racial groups are almost equally likely to give a slightly lower rating of 4.  
+
+
+### 8B. Ethnicity x Gender
+
+```{r echo=FALSE, fig.align = "center", fig.width = 10, fig.height= 7, warning = FALSE}
+plot(effects::Effect(focal.predictors = c("DRNO","gender"), mod = polr_model16, 
+            xlevels = list(gender = 0:1),
+            latent = TRUE),
+            rug = FALSE,
+            main = "Model 7 - Interaction Effects of Gender across Race on on Supervisor's Support
+                    \nfor Work-Life Balance (Ordinal Ratings)",
+            ylab = "Odds Ratio",
+            xlab = "Racial Categories",
+            grid = TRUE)
+```
+&nbsp;  
+```{r echo=FALSE, fig.align = "center", fig.width = 10, fig.height= 7, warning = FALSE}
+plot(effects::Effect(focal.predictors = c("DRNO","gender"), mod = polr_model18, 
+            xlevels = list(gender = 0:1),
+            latent = TRUE),
+            rug = FALSE, 
+            main = "Model 8 - Interaction Effects of Gender across Race on Supervisor's Support 
+                    \nfor Employee Development (Ordinal Ratings)",
+            ylab = "Odds Ratio",
+            xlab = "Racial Categories",
+            grid = TRUE)
+```
+
+As seen from the effect displays of `Model 7` & `Model 8`, it appears that the predicted scale rating of White female employees on their supervisors' support for work-life balance is 5, which are higher relative to females in the other 3 racial groups ranging from 4 to borderline 4-5. The predicted scale ratings of females who identify themselves as `African Americans` and `Others` are lowest at 4.
+
+For male employees, the predicted scale rating of White male employees on their supervisors' support for work-life balance is also 5, but we do observe males who are `Black or African Americans` and `Others` have some degree of uncertainty at borderline 4-5. Asian male employees has the lowest predicted rating of 4.
+
+As for employees' development, the predicted scale rating of all federal employees is 4. Female employees who are `Whites` are far more likely to give a better rating for their supervisors than non-White female employees. Similar trend is observed for male employees, but they are relatively more similar in their predicted rating outcome due to overlaps in the confidence intervals. Overall, Asian employees are least likely among all racial groups to rate their supervisors' support towards work-life balance and employee's development more favorably.
+
+
+
+## Chapter 9: Conclusion
+
+From our data science project, we could find the following two findings:
+
+1.	The relationships between ethnicity and supervisor's support (binary) in terms of work-life balance and employee's development differ depending on one’s gender. In particular, male employees who identify themselves as `Black or African Americans` are less likely to agree than females with the statement that their supervisors supported their needs to balance work and other life issues and personal development. This correlation seems to validate the phenomenon that ["Black males may face a different social reality (including interpersonal relationships at workplace) from their female counterparts"](https://www.brookings.edu/blog/up-front/2020/11/19/the-challenges-facing-black-men-and-the-case-for-action/). However, such gender disparity is not observed among Asian federal employees. On the contrary, White males are more likely to agree as compared to their White female colleagues with the statement that their supervisors support their need for work-life balance and personal development and even more so for males who identify themselves in the `Others` racial category. This may be attributed to the fact that respondents in the `Others` racial category form the smallest representation in the OPM Federal Employee Viewpoint Survey are better performers in their field of practice employed by the U.S. Federal Government and thus are more favored and/or receive better support from their supervisors.
+
+
+2.	Taking into account the ordinal nature of the ratings, the relationship between ethnicity and the degree of supervisor's support towards work-life balance and employee's development also differ depending on one’s gender. It appears that, among those who identify themselves in the `Others` racial category, the estimated odds of giving a higher rating (i.e. from 4 to 5) on their supervisor's support for work-life balance and employee development are higher for males than for females. An opposite relationship is seen among White employees, although the difference in odds ratio between genders is extremely small at 4%. As for Black/African employees, we do not observe significant difference between genders in giving a higher rating for their supervisor's support for work-life balance but a 10% increase in odds ratio for Black males employees rating their supervisors favorably (e.g. scale rating from 4 to 5) in their support for employee development. This seem to contradict the earlier observation when we look at binary outcome variables for Black/African American and may require further investigation into our model assumptions for ordinal logistic regression. No gender differences are observed among Asian employees in terms of rating their supervisor's support for work-life balance and employee development.  
+
+
+  
+## Chapter 10: Implications
+
+Despite the anti-discriminatory legislation and frameworks in place, our exploratory data analysis reflects a disconnect between the growing commitment to racial and gender equality and the lack of improvement that employees face in the day-to-day experiences of color and gender. Individuals who are non-White remain far more likely than Whites (or White males in particular) to be on the receiving end of fewer promotional or development opportunities and/or less likely to get the support they need.
+
+It corroborates with a very recent work of Mckinsey & Company which have shown [women of color lose ground to White women and men of color in corporate America](https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-in-the-workplace). Especially in times of disruption that drives a fundamental change in the way people work, it is imperative for companies to be fully on board to create a culture that focuses on employee well-being, racial and gender equity, shaping an environment to make workers feel more engaged and valued at work. If managers are assessed and rewarded when such goals are met, it could potentially address the discrimination gap and lead to better corporate performance and financial gains.  
+
+
+  
+## Chapter 11: Limitations and Future Directions
+
+Most of our predictor variables are binary or categorical, which may capture less information than what we hope to. In the case of age and number of years of federal work experience, such information would be valuable if the survey questions are designed to allow respondents to indicate numeric input.
+
+In addition, greater care is needed when it comes to working with observational data where our exploratory analysis indicate that these variables are correlated with each other, and not causally linked. This project could be expanded to combine datasets across the years to form panel data, where we could use mixed effects methods to address within-subjects and between-subject changes and establish casual relationships.
+
+Lastly, we need to look into the underlying assumption of proportional odds using the Brant Test (see Appendix) to check if parallel regression holds. Given that the p-values are less than the alpha of 0.05, we will have to explore different regressions models that relax this assumption to describe the relationship between each pair of outcome groups which is beyond the scope of the discussion.
+
+In future, we can further improve the model with clustering to allow the algorithm to search for the optimal number of hidden categorizations instead of comparing across the 4 racial categories predefined in the survey.
+
+  
+## Chapter 12: References
+
+> Philip N. Cohen, “The Persistence of Workplace Gender Segregation in the US,” Sociology Compass 7, no. 11 (2013): pp. 889-899, https://doi.org/10.1111/soc4.12083.
+>
+> Richard V. Reeves, Sarah Nzau, and Ember Smith, “The Challenges Facing Black Men – and the Case for Action,” Brookings (Brookings Institution, November 19, 2020), https://www.brookings.edu/blog/up-front/2020/11/19/the-challenges-facing-black-men-and-the-case-for-action/.
+>
+> “Women in the Workplace 2021,” McKinsey & Company (McKinsey & Company, September 27, 2021), https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-in-the-workplace.  
+
+  
+## Appendix
+
+> **1. Brant Test for Ordinal Logistic Regression**
+
+```{r warning=FALSE, message=FALSE}
+library(brant)
+
+brant(polr_model13)
+brant(polr_model15)
+brant(polr_model16)
+brant(polr_model18)
+```
+
+&nbsp; 
+
+> **2. Diagnostics of multicollinearity**
+
+Variance inflation factor (VIF) helps in formal detection-tolerance for multicollinearity. Given that the correlation matrix has shown that `work_experience` and `work_satisfaction` are highly correlated with a coefficient of 0.817, this indicates a potential problem of multicollinearity and the need for further investigation. Hence, we run a multiple linear regression with the same predictor and outcome variables as our logistic regression models and compute the VIF using car package. Since VIF for all variables are below 4, this indicates an absence of multicollinearity issue.
+
+```{r}
+model1_lm <- lm(Q19_binary ~ DRNO + gender + ancestry + disability + above40 + 
+                DFEDTEN + work_experience + work_satisfaction, data = final_cleaned_data)
+
+car::vif(model1_lm) %>%
+DT::datatable()
+```
+
+&nbsp; 
+
+```{r}
+model2_lm <- lm(Q21_binary ~ DRNO + gender + ancestry + disability + above40 + 
+                DFEDTEN + work_experience + work_satisfaction, data = final_cleaned_data)
+
+car::vif(model2_lm) %>%
+DT::datatable()
+```
