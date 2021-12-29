@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<!-- saved from url=(0106)file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<html>
+<head>
+  <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <meta name="author" content="Xue Li">
-  <meta name="dcterms.date" content="2021-12-28">
+  <meta name="author" content="Xue Li" />
+  <meta name="dcterms.date" content="2021-12-28" />
   <title>Drivers of Health Care Costs</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-  <link rel="stylesheet" href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/css/reveal.css">
+  <link rel="stylesheet" href="health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/css/reveal.css"/>
 
 
 
-<link rel="stylesheet" href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/css/theme/simple.css" id="theme">
+<link rel="stylesheet" href="health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/css/theme/simple.css" id="theme">
 
 
   <!-- some tweaks to reveal css -->
@@ -61,7 +61,7 @@
 
     <style type="text/css">code{white-space: pre;}</style>
 
-    <link rel="stylesheet" href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/reveal.css">
+    <link rel="stylesheet" href="reveal.css"/>
 
 <!-- Printing and PDF exports -->
 <script id="paper-css" type="application/dynamic-css">
@@ -443,323 +443,24 @@ var style_script_id = window.location.search.match( /print-pdf/gi ) ? 'pdf-css' 
 var style_script = document.getElementById(style_script_id).text;
 style.innerHTML = style_script;
 document.getElementsByTagName('head')[0].appendChild(style);
-</script><style type="text/css">
+</script>
 
-/* Default Print Stylesheet Template
-   by Rob Glazebrook of CSSnewbie.com
-   Last Updated: June 4, 2008
-
-   Feel free (nay, compelled) to edit, append, and
-   manipulate this file as you see fit. */
-
-
-@media print {
-
-	/* SECTION 1: Set default width, margin, float, and
-	   background. This prevents elements from extending
-	   beyond the edge of the printed page, and prevents
-	   unnecessary background images from printing */
-	html {
-		background: #fff;
-		width: auto;
-		height: auto;
-		overflow: visible;
-	}
-	body {
-		background: #fff;
-		font-size: 20pt;
-		width: auto;
-		height: auto;
-		border: 0;
-		margin: 0 5%;
-		padding: 0;
-		overflow: visible;
-		float: none !important;
-	}
-
-	/* SECTION 2: Remove any elements not needed in print.
-	   This would include navigation, ads, sidebars, etc. */
-	.nestedarrow,
-	.controls,
-	.fork-reveal,
-	.share-reveal,
-	.state-background,
-	.reveal .progress,
-	.reveal .backgrounds {
-		display: none !important;
-	}
-
-	/* SECTION 3: Set body font face, size, and color.
-	   Consider using a serif font for readability. */
-	body, p, td, li, div {
-		font-size: 20pt!important;
-		font-family: Georgia, "Times New Roman", Times, serif !important;
-		color: #000;
-	}
-
-	/* SECTION 4: Set heading font face, sizes, and color.
-	   Differentiate your headings from your body text.
-	   Perhaps use a large sans-serif for distinction. */
-	h1,h2,h3,h4,h5,h6 {
-		color: #000!important;
-		height: auto;
-		line-height: normal;
-		font-family: Georgia, "Times New Roman", Times, serif !important;
-		text-shadow: 0 0 0 #000 !important;
-		text-align: left;
-		letter-spacing: normal;
-	}
-	/* Need to reduce the size of the fonts for printing */
-	h1 { font-size: 28pt !important;  }
-	h2 { font-size: 24pt !important; }
-	h3 { font-size: 22pt !important; }
-	h4 { font-size: 22pt !important; font-variant: small-caps; }
-	h5 { font-size: 21pt !important; }
-	h6 { font-size: 20pt !important; font-style: italic; }
-
-	/* SECTION 5: Make hyperlinks more usable.
-	   Ensure links are underlined, and consider appending
-	   the URL to the end of the link for usability. */
-	a:link,
-	a:visited {
-		color: #000 !important;
-		font-weight: bold;
-		text-decoration: underline;
-	}
-	/*
-	.reveal a:link:after,
-	.reveal a:visited:after {
-		content: " (" attr(href) ") ";
-		color: #222 !important;
-		font-size: 90%;
-	}
-	*/
-
-
-	/* SECTION 6: more reveal.js specific additions by @skypanther */
-	ul, ol, div, p {
-		visibility: visible;
-		position: static;
-		width: auto;
-		height: auto;
-		display: block;
-		overflow: visible;
-		margin: 0;
-		text-align: left !important;
-	}
-	.reveal pre,
-	.reveal table {
-		margin-left: 0;
-		margin-right: 0;
-	}
-	.reveal pre code {
-		padding: 20px;
-		border: 1px solid #ddd;
-	}
-	.reveal blockquote {
-		margin: 20px 0;
-	}
-	.reveal .slides {
-		position: static !important;
-		width: auto !important;
-		height: auto !important;
-
-		left: 0 !important;
-		top: 0 !important;
-		margin-left: 0 !important;
-		margin-top: 0 !important;
-		padding: 0 !important;
-		zoom: 1 !important;
-
-		overflow: visible !important;
-		display: block !important;
-
-		text-align: left !important;
-		-webkit-perspective: none;
-		   -moz-perspective: none;
-		    -ms-perspective: none;
-		        perspective: none;
-
-		-webkit-perspective-origin: 50% 50%;
-		   -moz-perspective-origin: 50% 50%;
-		    -ms-perspective-origin: 50% 50%;
-		        perspective-origin: 50% 50%;
-	}
-	.reveal .slides section {
-		visibility: visible !important;
-		position: static !important;
-		width: auto !important;
-		height: auto !important;
-		display: block !important;
-		overflow: visible !important;
-
-		left: 0 !important;
-		top: 0 !important;
-		margin-left: 0 !important;
-		margin-top: 0 !important;
-		padding: 60px 20px !important;
-		z-index: auto !important;
-
-		opacity: 1 !important;
-
-		page-break-after: always !important;
-
-		-webkit-transform-style: flat !important;
-		   -moz-transform-style: flat !important;
-		    -ms-transform-style: flat !important;
-		        transform-style: flat !important;
-
-		-webkit-transform: none !important;
-		   -moz-transform: none !important;
-		    -ms-transform: none !important;
-		        transform: none !important;
-
-		-webkit-transition: none !important;
-		   -moz-transition: none !important;
-		    -ms-transition: none !important;
-		        transition: none !important;
-	}
-	.reveal .slides section.stack {
-		padding: 0 !important;
-	}
-	.reveal section:last-of-type {
-		page-break-after: avoid !important;
-	}
-	.reveal section .fragment {
-		opacity: 1 !important;
-		visibility: visible !important;
-
-		-webkit-transform: none !important;
-		   -moz-transform: none !important;
-		    -ms-transform: none !important;
-		        transform: none !important;
-	}
-	.reveal section img {
-		display: block;
-		margin: 15px 0px;
-		background: rgba(255,255,255,1);
-		border: 1px solid #666;
-		box-shadow: none;
-	}
-
-	.reveal section small {
-		font-size: 0.8em;
-	}
-
-}  
-</style>
-
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/header-attrs-2.11/header-attrs.js"></script>
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/font-awesome-5.1.0/css/all.css" rel="stylesheet">
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet">
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/htmlwidgets-1.5.4/htmlwidgets.js"></script>
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/datatables-binding-0.19/datatables.js"></script>
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet">
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet">
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/crosstalk-1.1.1/js/crosstalk.min.js"></script>
-    <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/kePrint-0.0.1/kePrint.js"></script>
-    <link href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/lightable-0.0.1/lightable.css" rel="stylesheet">
-<script type="text/javascript" src="./index_files/MathJax.js.download"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
-.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
-.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
-.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
-.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
-</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-#MathJax_About.MathJax_MousePost {outline: none}
-.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-.MathJax_MenuItem {padding: 2px 2em; background: transparent}
-.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
-.MathJax_MenuActive .MathJax_MenuArrow {color: white}
-.MathJax_MenuArrow.RTL {left: .5em; right: auto}
-.MathJax_MenuCheck {position: absolute; left: .7em}
-.MathJax_MenuCheck.RTL {right: .7em; left: auto}
-.MathJax_MenuRadioCheck {position: absolute; left: 1em}
-.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
-.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
-.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
-.MathJax_MenuDisabled {color: GrayText}
-.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
-.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
-.MathJax_ContextMenu:focus {outline: none}
-.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
-#MathJax_AboutClose {top: .2em; right: .2em}
-.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
-.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
-.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
-.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
-.MathJax_MenuClose:hover span {background-color: #CCC!important}
-.MathJax_MenuClose:hover:focus {outline: none}
-</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
-</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
-.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
-</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
-#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
-#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
-#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
-</style><style type="text/css">.MathJax_Preview {color: #888}
-#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
-#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
-.MathJax_Error {color: #CC0000; font-style: italic}
-</style><style type="text/css">.MJXp-script {font-size: .8em}
-.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
-.MJXp-bold {font-weight: bold}
-.MJXp-italic {font-style: italic}
-.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
-.MJXp-largeop {font-size: 150%}
-.MJXp-largeop.MJXp-int {vertical-align: -.2em}
-.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
-.MJXp-display {display: block; text-align: center; margin: 1em 0}
-.MJXp-math span {display: inline-block}
-.MJXp-box {display: block!important; text-align: center}
-.MJXp-box:after {content: " "}
-.MJXp-rule {display: block!important; margin-top: .1em}
-.MJXp-char {display: block!important}
-.MJXp-mo {margin: 0 .15em}
-.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
-.MJXp-denom {display: inline-table!important; width: 100%}
-.MJXp-denom > * {display: table-row!important}
-.MJXp-surd {vertical-align: top}
-.MJXp-surd > * {display: block!important}
-.MJXp-script-box > *  {display: table!important; height: 50%}
-.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
-.MJXp-script-box > *:last-child > * {vertical-align: bottom}
-.MJXp-script-box > * > * > * {display: block!important}
-.MJXp-mphantom {visibility: hidden}
-.MJXp-munderover {display: inline-table!important}
-.MJXp-over {display: inline-block!important; text-align: center}
-.MJXp-over > * {display: block!important}
-.MJXp-munderover > * {display: table-row!important}
-.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
-.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
-.MJXp-mtr {display: table-row!important}
-.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
-.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
-.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
-.MJXp-mlabeledtr {display: table-row!important}
-.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
-.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
-.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
-.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
-.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
-.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
-.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
-.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
-.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
-.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
-.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
-.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
-.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
-.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
-</style></head>
-<body><div id="MathJax_Message" style="display: none;"></div>
+    <script src="health_data_challenge_slidesmd_files/header-attrs-2.11/header-attrs.js"></script>
+    <link href="health_data_challenge_slidesmd_files/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+    <link href="health_data_challenge_slidesmd_files/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+    <script src="health_data_challenge_slidesmd_files/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+    <link href="health_data_challenge_slidesmd_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="health_data_challenge_slidesmd_files/datatables-binding-0.19/datatables.js"></script>
+    <script src="health_data_challenge_slidesmd_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+    <link href="health_data_challenge_slidesmd_files/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="health_data_challenge_slidesmd_files/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="health_data_challenge_slidesmd_files/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+    <link href="health_data_challenge_slidesmd_files/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+    <script src="health_data_challenge_slidesmd_files/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+    <script src="health_data_challenge_slidesmd_files/kePrint-0.0.1/kePrint.js"></script>
+    <link href="health_data_challenge_slidesmd_files/lightable-0.0.1/lightable.css" rel="stylesheet" />
+</head>
+<body>
   <div class="reveal">
     <div class="slides">
 
@@ -799,8 +500,8 @@ document.getElementsByTagName('head')[0].appendChild(style);
 <section id="section-1" class="slide level2">
 <h2></h2>
 <ul>
-<li><p>The 4 data sets are merged initially by matching <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>patient_id</code></a> and <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>bill_id</code></a>.</p></li>
-<li><p>In the merged data set, each unique <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>patient_id</code></a> may matched to several <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>biil_ids</code></a> with the same admission date, the observations are collapsed further to consolidate the total bill incurred for each hospitalization event, with 3,000 unique patient ids and 3,400 unique id-time observations.</p></li>
+<li><p>The 4 data sets are merged initially by matching <a href=""><code>patient_id</code></a> and <a href=""><code>bill_id</code></a>.</p></li>
+<li><p>In the merged data set, each unique <a href=""><code>patient_id</code></a> may matched to several <a href=""><code>biil_ids</code></a> with the same admission date, the observations are collapsed further to consolidate the total bill incurred for each hospitalization event, with 3,000 unique patient ids and 3,400 unique id-time observations.</p></li>
 </ul>
 </section></section>
 <section>
@@ -811,19 +512,19 @@ document.getElementsByTagName('head')[0].appendChild(style);
 <section id="section-2" class="slide level2">
 <h2></h2>
 <ul>
-<li><p>Inconsistency in data input of variables such as <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>gender</code></a>, <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>resident_status</code></a> and <a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><code>medical_history_3</code></a> are cleaned.</p></li>
+<li><p>Inconsistency in data input of variables such as <a href=""><code>gender</code></a>, <a href=""><code>resident_status</code></a> and <a href=""><code>medical_history_3</code></a> are cleaned.</p></li>
 <li><p>Additional continuous variables are created for regression model:</p>
 <ol type="1">
-<li><a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><strong><em><code>bmi</code></em></strong></a> - standardized scale for comparison which takes into account both height and weight</li>
-<li><a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><strong><em><code>medication</code></em></strong></a> - standardized scale (0 - 1) on number of preop_medications taken</li>
-<li><a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><strong><em><code>sym_count</code></em></strong></a> - standardized scale (0 - 1) on number of symptoms experienced</li>
-<li><a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html"><strong><em><code>comorbid</code></em></strong></a> - standardized scale (0 - 1) on number of medical histories applicable</li>
+<li><a href=""><strong><em><code>bmi</code></em></strong></a> - standardized scale for comparison which takes into account both height and weight</li>
+<li><a href=""><strong><em><code>medication</code></em></strong></a> - standardized scale (0 - 1) on number of preop_medications taken</li>
+<li><a href=""><strong><em><code>sym_count</code></em></strong></a> - standardized scale (0 - 1) on number of symptoms experienced</li>
+<li><a href=""><strong><em><code>comorbid</code></em></strong></a> - standardized scale (0 - 1) on number of medical histories applicable</li>
 </ol></li>
 </ul>
 </section>
 <section id="section-3" class="slide level2">
 <h2></h2>
-<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-4-1.png"><!-- --></p>
+<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-4-1.png" /><!-- --></p>
 </section>
 <section id="correlation-table-between-variables" class="slide level2">
 <h2>Correlation Table between Variables</h2>
@@ -839,7 +540,7 @@ document.getElementsByTagName('head')[0].appendChild(style);
 <h2></h2>
 <ul>
 <li><p>The <code>plm</code> package is used to run multiple linear regression model on panel data with individual fixed effects and random effects.</p></li>
-<li><p><a href="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd.html">Hausman Test</a> is subsequently used to decide between fixed or random effects, where null hypothesis suggest that the preferred model is random effects.</p></li>
+<li><p><a href="">Hausman Test</a> is subsequently used to decide between fixed or random effects, where null hypothesis suggest that the preferred model is random effects.</p></li>
 </ul>
 </section>
 <section id="individual-fixed-effects-model---total-bill-as-outcome-variable" class="slide level2">
@@ -2202,23 +1903,23 @@ lab_result_3
 </table>
 </section>
 <section id="correlation-between-no.-of-comorbidities-and-logtotal-bill" class="slide level2">
-<h2>Correlation between No.&nbsp;of Comorbidities and Log(Total Bill)</h2>
-<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-18-1.png"><!-- --></p>
+<h2>Correlation between No. of Comorbidities and Log(Total Bill)</h2>
+<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-18-1.png" /><!-- --></p>
 </section>
 <section id="correlation-between-no.-of-symptoms-and-logtotal-bill" class="slide level2">
-<h2>Correlation between No.&nbsp;of Symptoms and Log(Total Bill)</h2>
-<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-19-1.png"><!-- --></p>
+<h2>Correlation between No. of Symptoms and Log(Total Bill)</h2>
+<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-19-1.png" /><!-- --></p>
 </section>
 <section id="correlation-between-no.-of-medications-taken-and-logtotal-bill" class="slide level2">
-<h2>Correlation between No.&nbsp;of Medications taken and Log(Total Bill)</h2>
-<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-20-1.png"><!-- --></p>
+<h2>Correlation between No. of Medications taken and Log(Total Bill)</h2>
+<p><img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-20-1.png" /><!-- --></p>
 </section>
 <section id="comparison-of-regression-models" class="slide level2">
 <h2>Comparison of Regression Models</h2>
 </section>
 <section id="section-5" class="slide level2">
 <h2></h2>
-<p><img src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/Linear_Model_Regression_Table.png" width="85%" height="85%" style="display: block; margin: auto;"></p>
+<p><img src="Linear_Model_Regression_Table.png" width="85%" height="85%" style="display: block; margin: auto;" /></p>
 </section></section>
 <section>
 <section id="residual-diagnostics" class="title-slide slide level1">
@@ -2227,15 +1928,15 @@ lab_result_3
 </section>
 <section id="distribution-of-residuals" class="slide level2">
 <h2>Distribution of Residuals</h2>
-<p><small> The residuals are approximately normally distributed which means the multiple linear regression model could be reasonably used to draw accurate inferences of the model estimates. </small> <img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-23-1.png"><!-- --></p>
+<p><small> The residuals are approximately normally distributed which means the multiple linear regression model could be reasonably used to draw accurate inferences of the model estimates. </small> <img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-23-1.png" /><!-- --></p>
 </section>
 <section id="q-q-plot-of-residuals" class="slide level2">
 <h2>Q-Q Plot of Residuals</h2>
-<p><small> Visual display of residuals is reasonably close to the straight line, except for the extreme values at the lower and upper tails where residuals are larger than expected. </small> <img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-24-1.png"><!-- --></p>
+<p><small> Visual display of residuals is reasonably close to the straight line, except for the extreme values at the lower and upper tails where residuals are larger than expected. </small> <img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-24-1.png" /><!-- --></p>
 </section>
 <section id="residual-plot-of-plm-regression-with-r.e." class="slide level2">
 <h2>Residual Plot of PLM Regression with R.E.</h2>
-<p><small> The unstructured cloud of points centered at zero which suggested independence between residuals and fitted values, which satisfies homoskedasticity assumption of linear regression. </small> <img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-25-1.png"><!-- --></p>
+<p><small> The unstructured cloud of points centered at zero which suggested independence between residuals and fitted values, which satisfies homoskedasticity assumption of linear regression. </small> <img data-src="health_data_challenge_slidesmd_files/figure-revealjs/unnamed-chunk-25-1.png" /><!-- --></p>
 </section></section>
 <section>
 <section id="regression-diagnostics" class="title-slide slide level1">
@@ -2255,7 +1956,7 @@ lab_result_3
 <section id="lagrange-multiplier-test-for-random-effects" class="slide level2">
 <h2>Lagrange Multiplier Test for Random Effects</h2>
 <p><small>The null hypothesis in the LM test is that variances across individuals is zero.</small></p>
-<p><small>Since the null hypothesis <strong>can</strong> be rejected in favor of the alternative, this means that there is significant difference across units (i.e.&nbsp;panel effect exists). </small></p>
+<p><small>Since the null hypothesis <strong>can</strong> be rejected in favor of the alternative, this means that there is significant difference across units (i.e. panel effect exists). </small></p>
 <pre><code>## 
 ##  Lagrange Multiplier Test - (Breusch-Pagan) for unbalanced panels
 ## 
@@ -2278,8 +1979,8 @@ lab_result_3
     </div>
   </div>
 
-  <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/lib/js/head.min.js"></script>
-  <script src="file:///C:/Users/Xue%20Li/Documents/personal_portfolio/healthcare_data/health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/js/reveal.js"></script>
+  <script src="health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/lib/js/head.min.js"></script>
+  <script src="health_data_challenge_slidesmd_files/reveal.js-3.3.0.1/js/reveal.js"></script>
 
   <script>
 
@@ -2379,6 +2080,5 @@ lab_result_3
 </script>
 
 
-  
-
-</body></html>
+  </body>
+</html>
